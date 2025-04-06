@@ -8,6 +8,6 @@ sys.path.insert(1, os.path.join(sys.path[0], '..'))
 from SRC.DataBase.DataBase import create_table, drop_table
 
 
-drop_table()
+#drop_table()
 create_table()
-add_user()
+add_user(3, "Pavel")
