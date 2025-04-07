@@ -1,3 +1,5 @@
+from sqlalchemy import select
+
 from SRC.DataBase.DataBase import Session
 from SRC.Models.Level import Level
 
@@ -12,3 +14,10 @@ async def add_level():
     async with Session() as session:
         async with session.begin():
             session.add_all(Levels)
+
+async def get_level(title: str):
+    async with Session() as session:
+        async with session.begin():
+            query = select(Level).filter_by(title=title)
+            result = await session.execute(query)
+            return result.scalars().first()
