@@ -7,5 +7,5 @@ class Programming_language(Base):
     __tablename__ = "programming_languages"
 
     id = Column(Integer, primary_key=True)
-    language = Column(String)
+    language = Column(String, nullable=False)
     tasks = relationship("Task", back_populates="prog_language")
