@@ -1,5 +1,5 @@
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
+
+from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
 
 from SRC.Models.Base_model import Base
 from SRC.Models.User import User
@@ -10,11 +10,13 @@ from SRC.Models.Task import Task
 from SRC.Models.User_Achievement import Users_Achievement
 
 
-engine = create_engine("postgresql+psycopg2://postgres:123@localhost/Game_IT_Bot", echo=True)
+engine = create_async_engine("postgresql+asyncpg://postgres:123@localhost/Game_IT_Bot", echo=True)
 
-Session = sessionmaker(bind=engine)
-def create_table():
-    Base.metadata.create_all(engine)
+Session = async_sessionmaker(bind=engine, expire_on_commit=False)
+async def create_table():
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
 
-def drop_table():
-    Base.metadata.drop_all(engine)
+async def drop_table():
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.drop_all)
