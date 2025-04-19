@@ -1,3 +1,5 @@
+from sqlalchemy import select
+
 from SRC.DataBase.DataBase import Session
 from SRC.DataBase.Function_Level import get_level
 from SRC.DataBase.Function_Programming_language import get_language
@@ -19,3 +21,15 @@ async def add_task(condition: str, answer:str, level_title:str, prog_language:st
     async with Session() as session:
         async with session.begin():
             session.add(new_task)
+
+async def check_answer(id_task: int, answer: str):
+    answer_int = int(answer)
+    async with Session() as session:
+        async with session.begin():
+            query = select(Task).filter_by(id=id_task)
+            result = await session.execute(query)
+            task = result.scalars().first()
+            if task.answer == answer_int:
+                return True
+            else:
+                return False
