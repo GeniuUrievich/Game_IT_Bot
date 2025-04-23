@@ -5,6 +5,7 @@ from sqlalchemy import select
 from SRC.DataBase.DataBase import Session
 from SRC.DataBase.Function_Level import get_level
 from SRC.DataBase.Function_Programming_language import get_language
+from SRC.DataBase.Function_Task import get_text_task
 from SRC.Models.User import User
 from SRC.Models.Task import Task
 
@@ -13,7 +14,7 @@ async def add_user(id_teleg: int, name: str):#Добавление нового 
     async with Session() as session:
         async with session.begin():
             new_user = User(telegram_id=id_teleg, user_name = name)
-            if await check_user(id):
+            if await check_user(id_teleg):
                 session.add(new_user)
 
 
@@ -22,7 +23,7 @@ async def check_user(id_teleg: int):#Проверка пользователя �
         async with session.begin():
             query = select(User).filter_by(telegram_id=id_teleg)
             result = await session.execute(query)
-            if result.scalars().first == None:
+            if result.scalars().first != None:
                 return True
     return False
 
@@ -58,3 +59,13 @@ async def issue_task(id_teleg: int, lang:str, lev: str):
             tasks = result_2.scalars().all()
             task_user = random.choice(tasks)
             user.task_id = task_user.id
+            text = await get_text_task(task_user.id)
+    return text
+
+async def get_user(id_teleg: int):
+    async with Session() as session:
+        async with session.begin():
+            query = select(User).filter_by(telegram_id=id_teleg)
+            result = await session.execute(query)
+            user = result.scalars().first()
+    return user
