@@ -33,3 +33,11 @@ async def check_answer(id_task: int, answer: str):
                 return True
             else:
                 return False
+
+async def get_text_task(id_task: int):
+    async with Session() as session:
+        async with session.begin():
+            query = select(Task).filter_by(id=id_task)
+            result = await session.execute(query)
+            task = result.scalars().first()
+    return task.condition
