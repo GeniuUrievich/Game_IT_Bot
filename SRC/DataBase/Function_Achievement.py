@@ -29,6 +29,7 @@ async def add_achiv_user(id:int, title_ac:str):
             user = result1.scalars().first()
             result2 = await session.execute(select(Achievement).filter_by(title=title_ac))
             achievement = result2.scalars().first()
-            if achievement not in user.achievements and user.task_all_done == int(achievement.requirements):
-                user.achievements.append(achievement)
-                await session.commit()
+            if achievement in user.achievements:
+                return False
+            user.achievements.append(achievement)
+    return True
