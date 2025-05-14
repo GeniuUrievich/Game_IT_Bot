@@ -7,7 +7,8 @@ from aiogram.types import Message, CallbackQuery, InlineKeyboardMarkup, InlineKe
 
 from SRC.DataBase.Function_Programming_language import get_all_language
 from SRC.DataBase.Function_Task import check_answer
-from SRC.DataBase.Function_User_DataBase import add_user, issue_task, get_user, true_answer_task, false_answer_task
+from SRC.DataBase.Function_User_DataBase import add_user, issue_task, get_user, true_answer_task, false_answer_task, \
+    get_user_sortded_bs, get_achievement
 
 # Bot setup
 bot = Bot("7734808592:AAErqvH9MkIMS8u0h7oK8GwIkEsDh0SMeqg")
@@ -86,8 +87,33 @@ async def cmd_help(message: Message):
         "Привет! Я твой помощник, и вот что я могу для тебя сделать:\n"
         "/start — Запуск бота и краткое приветствие.\n"
         "/help — Получить справку и список команд.\n"
+        "/decide_task — Решать задачи. \n"
+        "/change_language_level — Сменить язык программирования и уровень сложности\n"
+        "/watch_top3 - Посмотреть топ-3 игроков с лучшей серией\n"
         "/achievements — Посмотреть свои достижения."
     )
+
+@dp.message(Command("decide_task"))
+async def cmd_decide_task(message:Message):
+    await message.answer("Хорошо! Давай выберем язык программирования и сложность",
+            reply_markup=language_kb)
+
+@dp.message(Command("change_language_level"))
+async def cmd_change_language_level(message:Message):
+    await message.answer("Хорошо! Давай выберем язык программирования и сложность",
+            reply_markup=language_kb)
+
+
+@dp.message(Command("watch_top3"))
+async def cmd_watch_top3(message:Message):
+    top = await get_user_sortded_bs()
+    mes = str()
+    for i in range (len(top)):
+        mes += f"{i+1}. <b>{top[i].user_name}</b> с продолжительностью <b>{top[i].best_store}</b> задач\n"
+    await message.answer(f"Вот 3 лучших игрока, которые отвечали на вопросы без ошибок:\n {mes}", parse_mode="HTML")
+@dp.message(Command("achievements"))
+async def cmd_achievements(message:Message):
+    await message.answer(await get_achievement(message.from_user.id))
 
 @dp.callback_query()
 async def handle_callbacks(callback: CallbackQuery, state: FSMContext):
@@ -158,8 +184,8 @@ async def handle_callbacks(callback: CallbackQuery, state: FSMContext):
         user = await get_user(callback.from_user.id)
         task_id = user.task_id
         if await check_answer(task_id, "1"):
-            await true_answer_task(callback.from_user.id)
-            await callback.message.answer("Верно",reply_markup=after_task_true_kb)
+            s = await true_answer_task(callback.from_user.id)
+            await callback.message.answer(f"Верно!\n {s}", reply_markup=after_task_true_kb)
             await callback.answer()
         else:
             await false_answer_task(callback.from_user.id)
@@ -170,8 +196,8 @@ async def handle_callbacks(callback: CallbackQuery, state: FSMContext):
         task_id = user.task_id
         print(task_id)
         if await check_answer(task_id, "2"):
-            await true_answer_task(callback.from_user.id)
-            await callback.message.answer("Верно",reply_markup=after_task_true_kb)
+            s = await true_answer_task(callback.from_user.id)
+            await callback.message.answer(f"Верно!\n {s}", reply_markup=after_task_true_kb)
             await callback.answer()
         else:
             await false_answer_task(callback.from_user.id)
@@ -182,20 +208,20 @@ async def handle_callbacks(callback: CallbackQuery, state: FSMContext):
         task_id = user.task_id
         print(task_id)
         if await check_answer(task_id, "3"):
-            await true_answer_task(callback.from_user.id)
-            await callback.message.answer("Верно",reply_markup=after_task_true_kb)
+            s = await true_answer_task(callback.from_user.id)
+            await callback.message.answer(f"Верно!\n {s}", reply_markup=after_task_true_kb)
             await callback.answer()
         else:
             await false_answer_task(callback.from_user.id)
-            await callback.message.answer("Неверно",reply_markup=after_task_false_kb)
+            await callback.message.answer("Неверно", reply_markup=after_task_false_kb)
             await callback.answer()
     elif callback.data == "answer4":
         user = await get_user(callback.from_user.id)
         task_id = user.task_id
         print(task_id)
         if await check_answer(task_id, "4"):
-            await true_answer_task(callback.from_user.id)
-            await callback.message.answer("Верно", reply_markup=after_task_true_kb)
+            s = await true_answer_task(callback.from_user.id)
+            await callback.message.answer(f"Верно\n {s}", reply_markup=after_task_true_kb)
             await callback.answer()
         else:
             await false_answer_task(callback.from_user.id)
